@@ -15,17 +15,18 @@ const convertToCSV = (answers, questions, ansprechpersonen) => {
 
   // Durchläuft alle Fragen und formatiert die Antworten für CSV
   questions.forEach((question) => {
+    // Immer alle Fragen aufnehmen, auch wenn sie nicht angezeigt wurden
     const answer = answers[question.id];
 
     let formattedAnswer = "";
-    // Verarbeitet verschiedene Antworttypen (Objekte, Arrays, einfache Werte)
-    if (typeof answer === "object") {
+    if (typeof answer === "object" && answer !== null) {
       if (Array.isArray(answer)) {
         formattedAnswer = answer
           .map((v) => v.option + (v.custom ? `: ${v.custom}` : ""))
           .join(" | ");
       } else {
-        formattedAnswer = answer.option + (answer.custom ? `: ${answer.custom}` : "");
+        formattedAnswer =
+          answer.option + (answer.custom ? `: ${answer.custom}` : "");
       }
     } else {
       formattedAnswer = answer || "";
@@ -79,7 +80,7 @@ const questions = [
     type: "text",
     label: "Name der Einrichtung/ des Unternehmens:",
     required: true,
-    group: "name", 
+    group: "name",
   },
   {
     id: 2,
@@ -91,7 +92,7 @@ const questions = [
     id: 3,
     type: "text",
     label: "Standort:",
-    group: "standort", 
+    group: "standort",
   },
 
   {
@@ -109,7 +110,7 @@ const questions = [
     ],
     textInputOptions: ["anderes, und zwar:"],
     required: true,
-    group: "allgemein", 
+    group: "allgemein",
   },
   {
     id: 8,
@@ -144,7 +145,7 @@ const questions = [
     ],
     required: true,
     textInputOptions: ["anderes, und zwar:"],
-    group: "allgemein", 
+    group: "allgemein",
   },
   {
     id: 10,
@@ -161,7 +162,7 @@ const questions = [
     label: "5. Betreiben Sie Forschung?",
     options: ["Ja", "Nein"],
     required: true,
-    group: "allgemein", 
+    group: "allgemein",
   },
   {
     id: 12,
@@ -174,7 +175,7 @@ const questions = [
       "Förderung durch den Bund (z.B. BMBF, BMWK)",
       "Förderung durch die EU (z.B. EFRE)",
       "Förderung durch Forschungsgemeinschaften/Vereine (z.B. DFG)",
-      "Förderung durch Unternehmen",
+      "Auftragsforschung für Unternehmen",
       "anderes, und zwar:",
     ],
     textInputOptions: ["anderes, und zwar:"],
@@ -186,7 +187,7 @@ const questions = [
     type: "radio",
     label: "6.  Wie viele Mitarbeitende sind in Ihrem Unternehmen beschäftigt?",
     options: ["unter 10", "10-49", "50-249", "mehr als 250"],
-    group: "allgemein", 
+    group: "allgemein",
   },
   {
     id: 14,
@@ -201,7 +202,7 @@ const questions = [
       "schlecht",
       "Sehr schlecht",
     ],
-    group: "allgemein", 
+    group: "allgemein",
   },
   {
     id: 15,
@@ -220,7 +221,7 @@ const questions = [
       "Arbeitskräfte mit Berufsausbildung anderer Fachrichtungen, und zwar:",
       "anderes, und zwar:",
     ],
-    group: "allgemein", 
+    group: "allgemein",
     condition: (answers) =>
       ["eher schlecht", "schlecht", "Sehr schlecht"].includes(
         answers[14]?.option
@@ -332,7 +333,7 @@ const questions = [
     ],
     textInputOptions: ["anderes, und zwar:"],
     group: "allgemein",
-    condition: (answers) => ["Ja"].includes(answers[18]?.option)
+    condition: (answers) => ["Ja"].includes(answers[18]?.option),
   },
   {
     id: 24,
@@ -357,45 +358,78 @@ const questions = [
     group: "Koop",
   },
   {
-    id: 27,
+    id: 26,
     type: "radio",
-    label: "Weltweit:",
+    label: "in Europa:",
     options: ["sehr wichtig", "wichtig", "eher unwichtig"],
     group: "Koop",
   },
   {
     id: 28,
     type: "radio",
+    label: "Weltweit:",
+    options: ["sehr wichtig", "wichtig", "eher unwichtig"],
+    group: "Koop",
+  },
+  // 12. Zusammenarbeit?
+  {
+    id: 29,
+    type: "radio",
     label:
-      "12.	Haben Sie in der Vergangenheit schon erfolgreich mit Bildungs-/ Forschungseinrichtungen oder Unternehmen zusammengearbeitet? Können Sie ein Beispielprojekt nennen, das als positives Beispiel in unserer Studie erwähnt werden könnte?",
+      "12. Haben Sie in der Vergangenheit schon erfolgreich mit Bildungs-/ Forschungseinrichtungen oder Unternehmen zusammengearbeitet?",
     options: ["Ja", "Nein"],
     group: "allgemein2",
   },
+  // 12a. Projekt als Beispiel erwähnen?
   {
-    id: 29,
-    type: "text",
-    label: "Erläuterung",
+    id: 29.1,
+    type: "radio",
+    label:
+      "Darf ein Beispielprojekt als positives Beispiel in unserer Studie erwähnt werden?",
+    options: ["Ja", "Nein"],
     group: "allgemein2",
-    condition: (answers) => ["Ja"].includes(answers[28]?.option),
+    condition: (answers) =>
+      answers[29] === "Ja" || answers[29]?.option === "Ja",
   },
+  // 12b. Beschreibung des Projekts
   {
-    id: 30,
+    id: 29.2,
+    type: "text",
+    label: "Bitte geben Sie eine kurze Beschreibung des Projekts an:",
+    group: "allgemein2",
+    condition: (answers) =>
+      (answers[29] === "Ja" || answers[29]?.option === "Ja") &&
+      (answers[29.1] === "Ja" || answers[29.1]?.option === "Ja"),
+  },
+  // 12c. Hätte es das Projekt auch ohne Zusammenarbeit gegeben?
+  {
+    id: 31,
     type: "radio",
     label:
       "Hätte es dieses Projekt in Ihrem Unternehmen auch gegeben, wenn es die Zusammenarbeit mit dem Projektpartner nicht gegeben hätte? (Einschätzung)",
     options: ["Nein", "Eher nein", "Eher Ja", "Ja"],
     group: "allgemein2",
-    condition: (answers) => ["Ja"].includes(answers[28]?.option),
+    condition: (answers) =>
+      answers[29] === "Ja" || answers[29]?.option === "Ja",
   },
-  {
-    id: 31,
-    type: "text",
-    label: "Wie ist die Zusammenarbeit für dieses Projekt zustande gekommen?",
-    group: "allgemein2",
-    condition: (answers) => ["Ja"].includes(answers[28]?.option),
-  },
+  // 12d. Wie kommt die Zusammenarbeit üblicherweise zustande?
   {
     id: 32,
+    type: "checkbox",
+    label:
+      "12a. Wie kommt die Zusammenarbeit für solche Kooperationsprojekte üblicher Weise zu Stande?",
+    options: [
+      "persönliche Kontakte",
+      "Netzwerke",
+      "gezielte Recherche",
+      "Empfehlung/ Vermittlung über Dritte",
+      "Sonstiges, und zwar:",
+    ],
+    textInputOptions: ["Sonstiges, und zwar:"],
+    group: "allgemein2",
+  },
+  {
+    id: 33,
     type: "checkbox",
     label:
       "13.  Sind Sie aktuell auf der Suche nach Kooperationspartnern mit spezifischen Kompetenzen oder technischer Ausstattung im Bereich Bioprozesstechnik/ Downstreamprocessing?",
@@ -414,7 +448,7 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 33,
+    id: 34,
     type: "checkbox",
     label:
       "14.  Würden Sie in einem dieser Bereiche Beratung z.B. für Start-Ups, Gründer anbieten können?",
@@ -429,7 +463,7 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 34,
+    id: 35,
     type: "radio",
     label:
       "15.  Sind Sie/ Ihr Unternehmen Mitglied in einem Netzwerk mit biotechnologischem Schwerpunkt?",
@@ -437,7 +471,7 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 35,
+    id: 36,
     type: "checkbox",
     label: "In welchen?",
     options: [
@@ -454,10 +488,10 @@ const questions = [
     ],
     textInputOptions: ["anderes, und zwar:"],
     group: "allgemein2",
-    condition: (answers) => ["Ja"].includes(answers[34]?.option),
+    condition: (answers) => ["Ja"].includes(answers[35]?.option),
   },
   {
-    id: 36,
+    id: 37,
     type: "checkbox",
     label:
       "16.  Wir untersuchen zurzeit den Bedarf einer lokalen Altgeräte-Börse speziell für Laborgeräte. Wäre eine solche lokale Altgeräte-Börse für Ihre Arbeitsgruppe/ Ihr Unternehmen interessant?",
@@ -471,7 +505,16 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 37,
+    id: 37.1,
+    type: "text",
+    label: "Erläuterung",
+    group: "allgemein2",
+    condition: (answers) =>
+      Array.isArray(answers[37]) &&
+      answers[37].some((opt) => opt.option === "Nein"),
+  },
+  {
+    id: 38,
     type: "radio",
     label:
       "17.  Haben Sie Kontakt zu anderen biotechnologischen Unternehmen/ Instituten in NRW, die Interesse an einer Vernetzung und/oder am Geräte-Sharing haben könnten?",
@@ -480,7 +523,7 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 38,
+    id: 39,
     type: "radio",
     label:
       "18. Gibt es in Ihrem Unternehmen Überlegungen etablierte chemische Prozesse auf biologische Prozesse umzustellen oder neue biologische Prozesse aufzubauen?",
@@ -488,14 +531,14 @@ const questions = [
     group: "allgemein2",
   },
   {
-    id: 39,
+    id: 40,
     type: "text",
     label: "Erläuterung",
     group: "allgemein2",
-    condition: (answers) => ["Ja", "Nein"].includes(answers[38]?.option),
+    condition: (answers) => ["Ja", "Nein"].includes(answers[39]?.option),
   },
   {
-    id: 40,
+    id: 41,
     type: "radio",
     label:
       "19. Hätten Sie Interesse an Unterstützungsangeboten, um Potenziale zur Biologisierung von Prozessen zu identifizieren und/ oder umzusetzen?",
@@ -589,7 +632,9 @@ function App() {
     const validationErrors = validateAnswers(answers, questions);
     if (validationErrors.length > 0) {
       alert(
-        `Bitte beantworten Sie alle erforderlichen Fragen:\n\n${validationErrors.join("\n")}`
+        `Bitte beantworten Sie alle erforderlichen Fragen:\n\n${validationErrors.join(
+          "\n"
+        )}`
       );
       return;
     }
@@ -630,7 +675,7 @@ function App() {
           <h2 className="text-4xl text-black font-medium mb-6 text-center">
             Kompetenzstudie Ruhr/Westfalen
           </h2>
-          
+
           {/* Hauptformular */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {groupOrder.map((group) => (
@@ -653,7 +698,13 @@ function App() {
                     return (
                       <React.Fragment key={question.id}>
                         {/* Standort-Frage */}
-                        <div className={groups[group]?.layout === "horizontal" ? "flex-1" : ""}>
+                        <div
+                          className={
+                            groups[group]?.layout === "horizontal"
+                              ? "flex-1"
+                              : ""
+                          }
+                        >
                           <Fragen
                             question={question}
                             value={answers[question.id] || ""}
@@ -682,7 +733,7 @@ function App() {
                                 )
                               }
                             />
-                            
+
                             {/* Telefon und Email nebeneinander */}
                             <div className="flex space-x-4">
                               <div className="flex-1">
@@ -747,12 +798,14 @@ function App() {
                       </React.Fragment>
                     );
                   }
-                  
+
                   // Standard-Fragenanzeige
                   return (
                     <div
                       key={question.id}
-                      className={groups[group]?.layout === "horizontal" ? "flex-1" : ""}
+                      className={
+                        groups[group]?.layout === "horizontal" ? "flex-1" : ""
+                      }
                     >
                       <Fragen
                         question={question}
@@ -766,7 +819,7 @@ function App() {
                 })}
               </div>
             ))}
-            
+
             {/* Submit-Button */}
             <button
               type="submit"
@@ -777,7 +830,7 @@ function App() {
           </form>
         </div>
       </div>
-      
+
       {/* FoerderLogos Komponente */}
       <div>
         <Foerderung></Foerderung>
