@@ -669,7 +669,7 @@ function App() {
     <>
       <div className="min-h-screen w-screen bg-gray-100 flex items-center justify-center">
         <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center mt-18">
             <img src={logo} alt="Logo" />
           </div>
           <h2 className="text-4xl text-black font-medium mb-6 text-center">
