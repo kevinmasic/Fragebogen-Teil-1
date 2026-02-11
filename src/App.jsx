@@ -13,7 +13,7 @@ import { logo } from "./assets";
 const convertToCSV = (answers, questions, ansprechpersonen) => {
   const rows = [];
 
-  // Durchläuft alle Fragen und formatiert die Antworten für CSV
+  // Durchläuft alle Fragen und formatiert die Antworten für CSV 
   questions.forEach((question) => {
     // Immer alle Fragen aufnehmen, auch wenn sie nicht angezeigt wurden
     const answer = answers[question.id];
@@ -545,7 +545,7 @@ const questions = [
     options: [
       "Ja, an individuellen Beratungsangeboten",
       "Ja, an Kooperationsprojekten mit Hochschulen/ Universitäten",
-      "Ja, an themenbetogenen Branchentreffs",
+      "Ja, an themenbezogene Branchentreffs",
       "anderes, und zwar: ",
       "Nein",
     ],
